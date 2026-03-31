@@ -1,12 +1,32 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
+import { getQuestions } from "@/lib/api";
+import { toast } from "sonner";
 
 const McqInstructions = () => {
   const router = useRouter();
+  const [question, setQuestion] = useState([]);
+  console.log("quest", question);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getQuestions();
+        if (res.success) {
+          setQuestion(res);
+        }
+      } catch (error) {
+        console.error("failed to fetch data, Please try again!", error);
+        toast.error("Server Down Please try again");
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
     <div className="w-full min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="w-full max-w-3xl flex flex-col items-center">
@@ -21,7 +41,9 @@ const McqInstructions = () => {
             {/* MCQ */}
             <div className="flex flex-col items-center justify-center">
               <p className="text-[15px] opacity-80 font-medium">Total MCQs</p>
-              <p className="text-[42px] leading-none mt-1">100</p>
+              <p className="text-[42px] leading-none mt-1">
+                {question.questions_count}
+              </p>
             </div>
 
             <Separator
@@ -32,7 +54,9 @@ const McqInstructions = () => {
             {/* Marks */}
             <div className="flex flex-col items-center justify-center">
               <p className="text-[15px] opacity-80 font-medium">Total marks</p>
-              <p className="text-[42px] leading-none mt-1">100</p>
+              <p className="text-[42px] leading-none mt-1">
+                {question.total_marks}
+              </p>
             </div>
 
             <Separator
@@ -43,7 +67,9 @@ const McqInstructions = () => {
             {/* Time */}
             <div className="flex flex-col items-center justify-center">
               <p className="text-[15px] opacity-80 font-medium">Total time</p>
-              <p className="text-[42px] leading-none mt-1">90:00</p>
+              <p className="text-[42px] leading-none mt-1">
+                {question.total_time}:00
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -55,28 +81,22 @@ const McqInstructions = () => {
           </h2>
 
           {/* ✅ Clean ShadCN-style list */}
-          <ol className="list-decimal space-y-2 text-[15px] text-gray-600 max-w-xl mx-auto pl-5 leading-relaxed">
-            <li>You have 100 minutes to complete the test.</li>
-            <li>Test consists of 100 multiple-choice questions.</li>
-            <li>
-              You are allowed 2 retest attempts if you do not pass on the first
-              try.
-            </li>
-            <li>Each incorrect answer will incur a negative mark of -1/4.</li>
-            <li>
-              Ensure you are in a quiet environment and have a stable internet
-              connection.
-            </li>
-            <li>Keep an eye on the timer and answer within the given time.</li>
-            <li>Do not use external resources like websites or assistance.</li>
-            <li>Complete the test honestly to assess your proficiency.</li>
-            <li>Results will be shown immediately after submission.</li>
-          </ol>
+          {question?.instruction ? (
+            <div
+              className="text-[15px] text-gray-600 max-w-xl mx-auto leading-relaxed [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-2"
+              dangerouslySetInnerHTML={{ __html: question.instruction }}
+            />
+          ) : (
+            <p className="text-center text-gray-500">Loading instructions...</p>
+          )}
 
           {/* Button */}
           <div className="flex justify-center mt-6 mb-3">
             <Button
-              onClick={() => router.push("/dashboard/questions")}
+              onClick={() => {
+                sessionStorage.setItem("examData", JSON.stringify(question));
+                router.push("/dashboard/questions");
+              }}
               className="w-[361px] h-[48px] bg-[#1c3141] hover:bg-[#1c3141] text-white"
             >
               Start Test
