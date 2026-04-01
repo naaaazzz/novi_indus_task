@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "../ui/button";
 import {
   AlertDialog,
@@ -12,33 +12,10 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "../ui/alert-dialog";
-import { useRouter } from "next/navigation";
-import { logoutUser } from "@/lib/api"; // adjust path
+import { useNavbar } from "@/hooks/navbarhooks/useNavbar";
 
 const Navbar = () => {
-  const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const handleLogout = async () => {
-    try {
-      setLoading(true);
-
-      await logoutUser();
-
-      // Remove token/session
-      localStorage.removeItem("token");
-      sessionStorage.removeItem("token");
-
-      // Redirect to login
-      router.push("/");
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
-      setLoading(false);
-      setOpen(false);
-    }
-  };
+  const { open, setOpen, loading, handleLogout } = useNavbar();
 
   return (
     <>

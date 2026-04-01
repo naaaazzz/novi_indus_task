@@ -1,4 +1,4 @@
-import McqInstructions from "@/components/pages/dashboardPages/mcqInstructions";
+import McqInstructions from "@/components/pages/dashboardPages/instructions/mcqInstructions";
 import React from "react";
 
 const page = () => {

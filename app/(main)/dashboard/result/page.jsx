@@ -1,4 +1,4 @@
-import ResultPage from "@/components/pages/dashboardPages/resultPage";
+import ResultPage from "@/components/pages/dashboardPages/result/resultPage";
 import React from "react";
 
 const page = () => {

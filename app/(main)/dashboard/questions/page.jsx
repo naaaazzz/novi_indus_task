@@ -1,4 +1,4 @@
-import Questions from "@/components/pages/dashboardPages/questions";
+import Questions from "@/components/pages/dashboardPages/Questions/questions";
 import React from "react";
 
 const page = () => {

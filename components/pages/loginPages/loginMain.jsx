@@ -1,96 +1,35 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState } from "react";
+import React from "react";
 import nexLearnImage from "@/public/NexLearn.png";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import LoginProfile from "./profilePage";
 import OtpLogin from "./loginOtp";
-import { createProfile, sentOtp, verifyOtp } from "@/lib/api";
-import { toast } from "sonner";
+import { useLogin } from "@/hooks/loginHooks/useLoginMain";
 
 const LoginMain = () => {
-  const router = useRouter();
-  const [step, setStep] = useState("phone");
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [profileImage, setProfileImage] = useState(null);
-  const [file, setFile] = useState(null);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [qualification, setQualification] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleContinue = async () => {
-    try {
-      setLoading(true);
-
-      if (step === "phone") {
-        if (phone.length !== 10) {
-          toast.error("Enter valid mobile number");
-          return;
-        }
-
-        const res = await sentOtp(`+91${phone}`);
-
-        if (res.success) {
-          toast.success("OTP sent");
-          setStep("otp");
-        } else {
-          toast.error(res.message);
-        }
-      } else if (step === "otp") {
-        if (otp.length !== 6) {
-          toast.error("Enter valid OTP");
-          return;
-        }
-
-        const res = await verifyOtp(`+91${phone}`, otp);
-
-        if (res.success) {
-          toast.success("OTP verified");
-
-          if (res.login) {
-            sessionStorage.setItem("token", res.access_token);
-            router.push("/dashboard");
-          } else {
-            setStep("profile");
-          }
-        } else {
-          toast.error(res.message);
-        }
-      } else {
-        if (!name || !qualification || !file) {
-          toast.error("Fill required fields");
-          return;
-        }
-
-        const res = await createProfile({
-          mobile: `+91${phone}`,
-          name,
-          email,
-          qualification,
-          profile_image: file,
-        });
-
-        if (res.success) {
-          toast.success("Profile created");
-          sessionStorage.setItem("token", res.access_token);
-          router.push("/dashboard");
-        } else {
-          toast.error(res.message);
-        }
-      }
-    } catch (err) {
-      toast.error(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    step,
+    phone,
+    setPhone,
+    otp,
+    setOtp,
+    profileImage,
+    setProfileImage,
+    setFile,
+    name,
+    setName,
+    email,
+    setEmail,
+    qualification,
+    setQualification,
+    loading,
+    error,
+    handleContinue,
+  } = useLogin();
 
   return (
     <div
@@ -148,7 +87,9 @@ const LoginMain = () => {
                       inputMode="numeric"
                       value={phone}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                        const val = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
                         setPhone(val);
                       }}
                       placeholder="1234 567891"
