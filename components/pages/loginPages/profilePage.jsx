@@ -17,10 +17,10 @@ const LoginProfile = ({
 }) => {
   return (
     <div
-      className={`absolute w-full transition-all duration-500 ${
+      className={`w-full transition-all duration-500 ${
         step === "profile"
-          ? "translate-x-0 opacity-100"
-          : "translate-x-full opacity-0 pointer-events-none"
+          ? "relative translate-x-0 opacity-100 sm:absolute sm:inset-0"
+          : "hidden translate-x-full opacity-0 pointer-events-none sm:absolute sm:inset-0 sm:block"
       }`}
     >
       <div className="space-y-4 sm:space-y-5">

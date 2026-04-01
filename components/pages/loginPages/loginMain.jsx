@@ -33,28 +33,28 @@ const LoginMain = () => {
 
   return (
     <div
-      className="flex min-h-screen items-center justify-center overflow-y-auto bg-cover bg-center bg-no-repeat px-3 py-4 sm:px-6 sm:py-8 lg:px-8 lg:py-10"
+      className="flex min-h-dvh items-start justify-center overflow-x-hidden overflow-y-auto bg-cover bg-center bg-no-repeat px-3 py-4 sm:min-h-screen sm:items-center sm:px-5 sm:py-6 lg:px-6 lg:py-5"
       style={{ backgroundImage: "url('/background_final.png')" }}
     >
-      <div className="mx-auto flex w-full max-w-[1120px] flex-col overflow-hidden rounded-2xl bg-[linear-gradient(180deg,#1c3142_0%,#243f52_35%,#2b4860_70%,#2b4b63_100%)] p-2 sm:p-3 lg:flex-row">
-        <div className="flex items-center justify-center rounded-xl px-4 py-6 sm:px-6 sm:py-8 lg:flex-1 lg:px-8 lg:py-10">
+      <div className="mx-auto flex w-full max-w-[1080px] flex-col overflow-hidden rounded-2xl bg-[linear-gradient(180deg,#1c3142_0%,#243f52_35%,#2b4860_70%,#2b4b63_100%)] p-2 sm:p-3 lg:max-h-[calc(100vh-40px)] lg:flex-row">
+        <div className="flex items-center justify-center rounded-xl px-4 py-6 sm:px-6 sm:py-8 lg:flex-1 lg:px-8 lg:py-8">
           <Image
             src={nexLearnImage}
             width={462}
             height={501}
             alt="NextLearn"
-            className="h-auto w-full max-w-[220px] sm:max-w-[280px] md:max-w-[340px] lg:max-w-[420px]"
+            className="h-auto w-full max-w-[220px] sm:max-w-[280px] md:max-w-[340px] lg:max-w-[380px] xl:max-w-[400px]"
             priority
           />
         </div>
 
-        <div className="m-0 flex w-full flex-col justify-between rounded-xl bg-white p-4 sm:p-6 lg:m-1 lg:w-[400px] lg:min-w-[400px] lg:p-5">
-          <div className="relative min-h-[470px] sm:min-h-[490px] lg:min-h-[470px]">
+        <div className="m-0 flex w-full flex-col rounded-xl bg-white p-4 sm:p-6 lg:m-1 lg:w-[390px] lg:min-w-[390px] lg:p-5">
+          <div className="relative flex-1 min-h-0 sm:min-h-[470px] lg:min-h-[420px]">
             <div
-              className={`absolute w-full transition-all duration-500 ${
+              className={`w-full transition-all duration-500 ${
                 step === "phone"
-                  ? "translate-x-0 opacity-100"
-                  : "-translate-x-full opacity-0 pointer-events-none"
+                  ? "relative translate-x-0 opacity-100 sm:absolute sm:inset-0"
+                  : "hidden -translate-x-full opacity-0 pointer-events-none sm:absolute sm:inset-0 sm:block"
               }`}
             >
               <div className="space-y-4 sm:space-y-5">
@@ -128,7 +128,7 @@ const LoginMain = () => {
           <Button
             size="xl"
             disabled={loading}
-            className="mt-6 w-full rounded-xl bg-[#1c3141] py-3 text-base font-medium text-white hover:bg-[#1c3141] sm:mt-8 sm:text-lg"
+            className="mt-6 w-full rounded-xl bg-[#1c3141] py-3 text-base font-medium text-white hover:bg-[#1c3141] sm:mt-7 sm:text-lg"
             onClick={handleContinue}
           >
             {loading
