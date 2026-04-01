@@ -1,11 +1,12 @@
 import { submitAnswers } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export const useQuestions = () => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [timeOverAlertOpen, setTimeOverAlertOpen] = useState(false);
   const [examData, setExamData] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState([]);
@@ -13,6 +14,8 @@ export const useQuestions = () => {
   const [visitedQuestions, setVisitedQuestions] = useState([]);
   const [timeLeft, setTimeLeft] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const hasSubmittedRef = useRef(false);
+  const redirectTimeoutRef = useRef(null);
 
   // LOAD DATA
   useEffect(() => {
@@ -173,33 +176,94 @@ export const useQuestions = () => {
   const hasQuestions = totalQuestions > 0;
 
   // SUBMIT
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async ({
+    remainingTimeOverride,
+    showSuccessToast = true,
+    redirectDelay = 0,
+    openTimeOverAlert = false,
+  } = {}) => {
+    if (hasSubmittedRef.current) return;
+
+    hasSubmittedRef.current = true;
+
     try {
       const res = await submitAnswers(answers, questions);
       if (res.success) {
+        const remainingTime =
+          remainingTimeOverride !== undefined
+            ? remainingTimeOverride
+            : formattedTimeLeft;
+
         sessionStorage.setItem(
           "resultData",
           JSON.stringify({
             ...res,
-            remaining_time: formattedTimeLeft,
+            remaining_time: remainingTime,
             total_questions: totalQuestions,
             total_marks: examData?.total_marks ?? totalQuestions,
           }),
         );
-        toast.success("Result Submitted Successfully");
-        router.push("/dashboard/result");
+
+        if (openTimeOverAlert) {
+          setTimeOverAlertOpen(true);
+        }
+
+        if (showSuccessToast) {
+          toast.success("Result Submitted Successfully");
+        }
+
+        if (redirectDelay > 0) {
+          redirectTimeoutRef.current = setTimeout(() => {
+            router.push("/dashboard/result");
+          }, redirectDelay);
+        } else {
+          router.push("/dashboard/result");
+        }
       } else {
+        hasSubmittedRef.current = false;
         toast.error(res?.message || "Failed to submit answers");
       }
     } catch (error) {
+      hasSubmittedRef.current = false;
       console.error(error);
       toast.error(error?.response?.data?.message || "Failed to submit answers");
     }
-  };
+  }, [
+    answers,
+    examData?.total_marks,
+    formattedTimeLeft,
+    questions,
+    router,
+    totalQuestions,
+  ]);
+
+  useEffect(() => {
+    if (!isLoaded || !hasQuestions || timeLeft > 0 || hasSubmittedRef.current) {
+      return;
+    }
+
+    setTimeOverAlertOpen(true);
+    handleSubmit({
+      remainingTimeOverride: "0:00",
+      showSuccessToast: false,
+      redirectDelay: 5000,
+      openTimeOverAlert: true,
+    });
+  }, [handleSubmit, hasQuestions, isLoaded, timeLeft]);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return {
     open,
     setOpen,
+    timeOverAlertOpen,
+    setTimeOverAlertOpen,
     examData,
     setExamData,
     currentIndex,
